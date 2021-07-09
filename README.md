@@ -33,6 +33,11 @@ Or Use the Objreader to read the obj file(Not fully supported, please only keep 
 	};
 	
 The Mesh will be saved in .objmesh member.
+
+There are still some hardcoding in __C__mesh__test or other function like that, but that's for my test and does not matter.
+
+
+
 ## Reference 
 https://github.com/nabeel3133/combining3Dmorphablemodels
 https://github.com/saikiran321/nonrigid_icp
