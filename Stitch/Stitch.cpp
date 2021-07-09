@@ -771,7 +771,7 @@ MatrixXi Stitch::NICP::ReverseRef(MatrixXi mat,int len)
 		int k = mat(i, 0);
 		if (contour_set.find(i + 1) == contour_set.end())
 		{
-			//continue;
+			continue;
 		}
 		if (k != -1) 
 		{
@@ -1317,7 +1317,7 @@ void __C__mesh__test2()
 
 void neck_test()
 {
-	Stitch::ObjReader Oreader("C:/Users/Yueyuan/Documents/Exp/Input_face.obj");
+	Stitch::ObjReader Oreader("Input_face.obj");
 	Stitch::Mesh m = Oreader.objmesh;
 	std::cout << m.vertices.rows() << " " << m.vertices.cols();
 
