@@ -1,79 +1,93 @@
-﻿  pch.cpp
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppClean.targets(76,5): warning : 对路径“c:\users\yueyuan\source\repos\stitch\x64\release\stitch.pdb”的访问被拒绝。
+  pch.cpp
   dllmain.cpp
   KDTree.cpp
   Stitch.cpp
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(13,8): warning C4244: “初始化”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(29,8): warning C4244: “初始化”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(208,85): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(208,69): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(208,53): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(410,23): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(411,20): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(600,79): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(646,80): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(647,68): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(703,80): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(705,69): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(889,85): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(16,8): warning C4244: “初始化”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(32,8): warning C4244: “初始化”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(210,85): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(210,69): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(210,53): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(411,23): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(412,20): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(611,81): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(611,67): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(611,53): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(612,83): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(612,67): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(612,51): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(710,113): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(710,84): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(710,55): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(711,83): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(711,67): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(711,51): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(794,79): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(840,80): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(841,68): warning C4244: “参数”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1029,85): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(889,60): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1029,60): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1009,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1149,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1009,46): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1149,46): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1050,57): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1190,57): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1069,65): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1209,65): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1069,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1209,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1088,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1228,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1088,45): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1228,45): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1103,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1243,55): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1103,45): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1243,45): warning C4244: “参数”: 从“Eigen::Index”转换到“const StorageIndex”，可能丢失数据
           with
           [
               StorageIndex=int
           ]
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1200,39): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1240,58): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1457,39): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1497,58): warning C4244: “=”: 从“Eigen::Index”转换到“int”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1568,34): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1568,31): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
+C:\Users\Yueyuan\source\repos\Stitch\Stitch\Stitch.cpp(1568,28): warning C4244: “参数”: 从“double”转换到“const float”，可能丢失数据
     正在创建库 C:\Users\Yueyuan\source\repos\Stitch\x64\Release\Stitch.lib 和对象 C:\Users\Yueyuan\source\repos\Stitch\x64\Release\Stitch.exp
   正在生成代码
   Previous IPDB not found, fall back to full compilation.
-  All 3495 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 3723 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   已完成代码的生成
-  Stitch.vcxproj -> C:\Users\Yueyuan\source\repos\Stitch\x64\Release\Stitch.dll
+LINK : fatal error LNK1201: 写入程序数据库“C:\Users\Yueyuan\source\repos\Stitch\x64\Release\Stitch.pdb”时出错；请检查是否是磁盘空间不足、路径无效或权限不够

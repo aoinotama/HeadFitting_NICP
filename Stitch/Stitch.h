@@ -31,7 +31,8 @@
 const std::vector<int> contour = { 12,22,23,24,26,39,41,357,359,360,361,364,365,366,370,371,372,374,381,382,383,385,386,387,389,392,393,394,442,455,465,466,467,476,478,774,776,777,778,781,782,783,787,788,789,791,796,797,798,800,801,802,803,806,807,808,1767,1772,1823,1827,1863,1864,1866,1867,1910,1913,1964,1967,2002,2005,2073,2076,2077,2081,2083,2086,2095,2096,2129,2131,2162,2164,2205,2208,2266,2269,2298,2301,2312,2313,2330,2333,2419,2421,2423,2424,2460,2463,2509,2510,2535,2536,2580,2581,2589,2590,2591,2592,2658,2659,2817,2818 };
 const std::set<int> contour_set = { 12,22,23,24,26,39,41,357,359,360,361,364,365,366,370,371,372,374,381,382,383,385,386,387,389,392,393,394,442,455,465,466,467,476,478,774,776,777,778,781,782,783,787,788,789,791,796,797,798,800,801,802,803,806,807,808,1767,1772,1823,1827,1863,1864,1866,1867,1910,1913,1964,1967,2002,2005,2073,2076,2077,2081,2083,2086,2095,2096,2129,2131,2162,2164,2205,2208,2266,2269,2298,2301,2312,2313,2330,2333,2419,2421,2423,2424,2460,2463,2509,2510,2535,2536,2580,2581,2589,2590,2591,2592,2658,2659,2817,2818 };
 
-
+const int __nose__index = 114;
+const int __chin__index = 33;
 
 namespace Stitch
 {
@@ -65,6 +66,8 @@ namespace Stitch
 		void export_out(double*& v, int& vl, int*& t, int& tl);
 		void M(MatrixXd facevertices, MatrixXi faceedges, MatrixXi ref);
 		void leave_back(MatrixXi Ref);
+		void leave_back(MatrixXi Ref, Eigen::Vector3f Direction);
+		void LeaveBackCross(MatrixXi Ref, Eigen::Vector3f Direction);
 		
 	};
 	Mesh merge(Stitch::Mesh m1, Stitch::Mesh m2);
@@ -112,10 +115,9 @@ namespace Stitch
 		MatrixXi refindices;
 		::std::string model_folder;
 		//Some const
-		const int __nose__index = 114;
-		const int __chin__index = 33;
-		void solve(Mesh source, Mesh target, int step);
+
 		MatrixXi ReverseRef(MatrixXi mat,int len);
+		MatrixXi ReverseRef(MatrixXi mat, int len, std::set<int> contour_set);
 		SparseMatrix<double,Eigen::RowMajor> building_A_Upper(const MatrixXi &Edge,const MatrixXd &vertices);
 		SparseMatrix<double,Eigen::RowMajor> building_A_Lower_init(const MatrixXd& vertices);
 		SparseMatrix<double, Eigen::RowMajor> building_X_init(int vertices_row);
@@ -155,16 +157,23 @@ namespace Stitch
 	{
 	public:
 		KnnSearch(MatrixXd vertices);
+		KnnSearch(const Mesh &M, const MatrixXi &ref);
+		KnnSearch(const Mesh& M, const MatrixXi& ref, ::std::vector<int>& index);
 		MatrixXi Kneighbors(MatrixXd vertices, int K =1,double threhold = __THREHOLD);// get K neighbors
 	private:
 		KDTree kdtree;
 	};
 	
 	mesh_v_and_f get__head(::std::vector<Eigen::Vector3f> vertice, ::std::vector<::std::array<int, 3>> triangles);
-
+	
+	// InterFace
 	Mesh Fit(Mesh x);
+	Mesh GetHead(Mesh x);
 	Mesh Fit(Mesh face, Mesh head);
+	Mesh Fit(Mesh face, Mesh head, Eigen::Vector3f Direction);
+	
 
+	void extract_contour(::std::string filename, Stitch::Mesh M, MatrixXi relation, ::std::set<int> Contour = contour_set);
 
 }
 
@@ -172,6 +181,7 @@ extern "C" {
 
 	STITCH_API void __C__mesh__test();
 	STITCH_API void __C__mesh__test2();
+	STITCH_API void __C__mesh__test3(double x,double y,double z,double t1,double t2);
 	STITCH_API void neck_test();
 
 

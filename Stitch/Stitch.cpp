@@ -8,6 +8,9 @@ using Eigen::SparseMatrix;
 
 /* IO part */
 
+double global_m1 = 0;
+double global_m2 = 0;
+
 void printSparse(SparseMatrix<double> M,std::fstream &stream)
 {
 	int p = M.nonZeros();
@@ -146,22 +149,21 @@ Stitch::ObjReader::ObjReader(std::string filename)
 	objmesh.edges = facedata;
 }
 
-
 Stitch::RegressionHead::RegressionHead(MatrixXd head_mean, MatrixXd head_U, MatrixXd Whf, MatrixXd input_face, MatrixXd face_U, MatrixXd face_mean)
 {
 	std::cout << face_mean.rows() << " " << face_mean.cols() << std::endl;
 	input_face.resize(input_face.rows() * input_face.cols(), 1);
-	auto step1 = input_face - face_mean;
-	auto step2 = face_U.transpose() * step1;
-	auto step3 = Whf * step2;
-	auto step4 = head_U * step3;
+	auto step1 = input_face - face_mean; 
+	auto step2 = face_U.transpose() * step1; // Mapping the input face to input face's parameter
+	auto step3 = Whf * step2; // Mapping the input face's parameter to head's parameter
+	auto step4 = head_U * step3; // Head parameter --> Head vertices' position
 	auto result = head_mean + step4;
 	data = result;
 	
 	return ;
 }
 
-/*  Mesh  */
+/* Mesh */
 
 Stitch::Mesh::Mesh(double v[], int vertices_len, int t[], int triangles_len)
 {
@@ -280,7 +282,6 @@ void Stitch::Mesh::export_boudary_as_obj_file(std::string filename, MatrixXi Ref
 	return;
 
 }
-
 
 void Stitch::Mesh::export_I(std::string filename, MatrixXi Ref)
 {
@@ -547,6 +548,7 @@ void Stitch::Mesh::leave_back(MatrixXi Ref)
 			rows++;
 		}
 	}
+
 	int edges_rows = 0;
 	for (int i = 0; i < edges.rows(); i++)
 	{
@@ -554,11 +556,10 @@ void Stitch::Mesh::leave_back(MatrixXi Ref)
 			//fs << "f " << col[edges(i, 0)] + 1 << ' ' << col[edges(i, 1)] + 1 << ' ' << col[edges(i, 2)] + 1 << std::endl;
 			edges_rows++;
 		}
-
 	}
+
 	MatrixXd newvertices(rows, 3);
 	int vi = 0;
-	std::fstream fs("HeadVerticesList.txt",::std::ios::out);
 	for (int i = 0; i < vertices.rows(); i++)
 	{
 		if (backed[i]) {
@@ -566,11 +567,10 @@ void Stitch::Mesh::leave_back(MatrixXi Ref)
 			newvertices(vi, 1) = vertices(i, 1);
 			newvertices(vi, 2) = vertices(i, 2);
 			vi++;
-			fs << i << ' ';
 		}
 		
 	}
-	fs.close();
+
 	int ei = 0;
 	MatrixXi newedges(edges_rows, 3);
 	for (int i = 0; i < edges.rows(); ++i)
@@ -585,7 +585,201 @@ void Stitch::Mesh::leave_back(MatrixXi Ref)
 	}
 	vertices = newvertices;
 	edges = newedges;
-	//fs.close();
+	
+}
+
+void Stitch::Mesh::leave_back(MatrixXi Ref, Eigen::Vector3f Direction)// Direction Point to the Back 
+{	
+	// Use KNN and vector to detect which part of the head is the face
+	// Remove the face mesh
+	::std::vector<int> indexvector;
+	KnnSearch knn(*this, Ref,indexvector);
+	//leave_back(Ref);
+	::std::vector<bool> back(vertices.rows(), false);
+#if true
+	double xavg = 0;
+	double yavg = 0;
+	double zavg = 0;
+
+#endif 
+	auto neighbors = knn.Kneighbors(vertices,1,1e+20);
+	for (int i = 0; i < vertices.rows(); i++)
+	{
+		int u = indexvector[neighbors(i)];
+		if (vertices.cols() == 3 && u < vertices.rows())
+		{
+			Eigen::Vector3f vStart = Eigen::Vector3f(vertices(u,0),vertices(u,1),vertices(u,2));
+			Eigen::Vector3f vEnd = Eigen::Vector3f(vertices(i, 0), vertices(i, 1), vertices(i,2));
+
+			//::std::cout << vStart(0) << "  " << vStart(1) << "  " << vStart(2) << ::std::endl;
+			//::std::cout << vEnd(0) << "  " << vEnd(1) << "  " << vEnd(2) << ::std::endl;
+
+			Eigen::Vector3f d = vEnd - vStart;
+			Eigen::Vector3f Dir = vStart ;
+			//::std::cout << d(0) << "  " << d(1) << "  " << d(2) << ::std::endl;
+			double m = d.transpose() * Dir;
+			double m2 = d.transpose() * Direction;
+			//::std::cout << m << ::std::endl;
+			if (m >= global_m1 && m2 >= global_m2)
+			{
+				back[i] = true;
+			}
+#if true
+			xavg += vStart(0);
+			yavg += vStart(1);
+			zavg += vStart(2);
+#endif 
+		}
+		else {
+			//Error Handling
+			::std::cout << neighbors(i) << " " << indexvector.size() << ::std::endl;
+			::std::cout << u << "  " << vertices.rows() << ::std::endl;
+			throw;
+		}	
+	}
+
+#if true
+	::std::cout << xavg / vertices.rows() << "   " << yavg / vertices.rows() << "  " << zavg / vertices.rows() << std::endl;
+#endif
+	int vertices_number = 0;
+	for (auto i : back)
+	{
+		if (i == true)
+		{
+			vertices_number++;
+		}
+	}
+	int edges_number = 0;
+	for (int i = 0; i < edges.rows(); i++)
+	{
+		if (back[edges(i, 0)] && back[edges(i, 1)] && back[edges(i, 2)])
+		{
+			edges_number++;
+		}
+	}
+	MatrixXd newVertice(vertices_number, 3);
+	for (int i = 0, vi =0; i < vertices.rows() && vi < vertices_number; ++i)
+	{
+		if (back[i])
+		{
+			//newVertice.row(vi) = vertices.row(i);
+			newVertice(vi, 0) = vertices(i, 0);
+			newVertice(vi, 1) = vertices(i, 1);
+			newVertice(vi, 2) = vertices(i, 2);
+			vi++;
+		}
+	}
+	std::vector<int> col(vertices.rows(), 0);
+	{
+		int u = 0;
+		for (int i = 0; i < vertices.rows(); i++)
+		{
+			col[i] = u;
+			if (back[i]) u++;
+		}
+	}
+	MatrixXi newEdges(edges_number,3);
+	for (int i = 0, ei = 0; i < edges.rows() && ei < edges_number; ++i)
+	{
+		if (back[edges(i, 0)] && back[edges(i, 1)] && back[edges(i, 2)])
+		{
+			newEdges(ei, 0) = col[edges(i, 0)];
+			newEdges(ei, 1) = col[edges(i, 1)];
+			newEdges(ei, 2) = col[edges(i, 2)];
+			ei++;
+		}
+	}
+	vertices = newVertice;
+	edges = newEdges;
+}
+
+void Stitch::Mesh::LeaveBackCross(MatrixXi Ref, Eigen::Vector3f Direction)
+{
+	KnnSearch knn(*this, Ref);
+	auto verticeBak = vertices;
+	leave_back(Ref);
+	::std::vector<bool> back(vertices.rows(), false);
+	auto neighbors = knn.Kneighbors(vertices, 1, 1e+20);
+	double xavg = 0;
+	double yavg = 0;
+	double zavg = 0;
+	for (int i = 0; i < vertices.rows(); i++)
+	{
+		if (vertices.cols() == 3)
+		{
+			Eigen::Vector3f vStart = Eigen::Vector3f(verticeBak(neighbors(i), 0), verticeBak(neighbors(i), 1), verticeBak(neighbors(i), 2));
+			Eigen::Vector3f vEnd = Eigen::Vector3f(vertices(i, 0), vertices(i, 1), vertices(i, 2));
+			Eigen::Vector3f d = vStart - vEnd;
+			::std::cout << vStart(0) << "  " << vStart(1) << "  " << vStart(2) << ::std::endl;
+			::std::cout << vEnd(0) << "  " << vEnd(1) << "  " << vEnd(2) << ::std::endl;
+			::std::cout << d(0) << "  " << d(1) << "  " << d(2) << ::std::endl;
+			double m = d.transpose() * Direction;
+			::std::cout << m << ::std::endl;
+			if (m >= 0)
+			{
+				back[i] = true;
+			}
+			xavg += vStart(0);
+			yavg += vStart(1);
+			zavg += vStart(2);
+		}
+		else {
+			//Error Handling
+			throw;
+		}
+	}
+	::std::cout << xavg / vertices.rows() << "   " << yavg / vertices.rows() << "  " << zavg / vertices.rows() << std::endl;
+
+	int vertices_number = 0;
+	for (auto i : back)
+	{
+		if (i == true)
+		{
+			vertices_number++;
+		}
+	}
+	int edges_number = 0;
+	for (int i = 0; i < edges.rows(); i++)
+	{
+		if (back[edges(i, 0)] && back[edges(i, 1)] && back[edges(i, 2)])
+		{
+			edges_number++;
+		}
+	}
+	MatrixXd newVertice(vertices_number, 3);
+	for (int i = 0, vi = 0; i < vertices.rows() && vi < vertices_number; ++i)
+	{
+		if (back[i])
+		{
+			//newVertice.row(vi) = vertices.row(i);
+			newVertice(vi, 0) = vertices(i, 0);
+			newVertice(vi, 1) = vertices(i, 1);
+			newVertice(vi, 2) = vertices(i, 2);
+			vi++;
+		}
+	}
+	std::vector<int> col(vertices.rows(), 0);
+	{
+		int u = 0;
+		for (int i = 0; i < vertices.rows(); i++)
+		{
+			col[i] = u;
+			if (back[i]) u++;
+		}
+	}
+	MatrixXi newEdges(edges_number, 3);
+	for (int i = 0, ei = 0; i < edges.rows() && ei < edges_number; ++i)
+	{
+		if (back[edges(i, 0)] && back[edges(i, 1)] && back[edges(i, 2)])
+		{
+			newEdges(ei, 0) = col[edges(i, 0)];
+			newEdges(ei, 1) = col[edges(i, 1)];
+			newEdges(ei, 2) = col[edges(i, 2)];
+			ei++;
+		}
+	}
+	vertices = newVertice;
+	edges = newEdges;
 }
 
 Stitch::NICP::NICP(Mesh source, Mesh target)
@@ -691,80 +885,8 @@ void Stitch::NICP::solve(Mesh source, Mesh target)
 	return;
 }
 
-void Stitch::NICP::solve(Mesh source, Mesh target, int step)
-{
-	if (step < 10) return;
-	auto kron_M_G = building_A_Upper(source.edges, source.vertices);
-	if (step < 11) return;
-	SparseMatrix<double, Eigen::RowMajor> D(source.vertices.rows(), source.vertices.rows() * 4);
-	if (step < 12) return;
-	D = building_A_Lower_init(source.vertices);
-	if (step < 13) return;
-	SparseMatrix<double, Eigen::RowMajor> X = building_X_init(source.vertices.rows());
-	if (step < 14) return;
-	MatrixXi matchIndices = ReverseRef(refindices, source.vertices.rows());
-	// Iteration match starts
-	if (step < 15) return;
-	std::vector<double> alpha_list = { 150,100,50,1,0.001 };
-	if (step < 16) return;
-	std::vector<std::string> filenameList = { "5","10","15","20","25" };
-	if (step < 17) return;
-	int counti = 0;
-	//for (double i : alpha_list)
-	{
-		if (step < 18) return;
-		double alphas = alpha_list[4];
-		if (step < 19) return;
-		SparseMatrix<double, Eigen::RowMajor> vertsTransformed = D * X;
-		if (step < 20) return;
-		SparseMatrix<double, Eigen::RowMajor> B_lower
-			= braket_row(target.vertices.sparseView(), matchIndices);//?
-		if (step < 21) return;
-		SparseMatrix<double, Eigen::RowMajor> U0(kron_M_G.rows(), 3);
-		if (step < 22) return;
-		SparseMatrix<double, Eigen::RowMajor> DwVec = braket_remove(D, matchIndices);
-		if (step < 23) return;
-		auto ArowBase = StackRows(alphas * kron_M_G, DwVec);
-		if (step < 24) return;
-		auto BrowBase = StackRows(U0, B_lower);
-		if (step < 25) return;
-		auto A = RowBaseToColBase(ArowBase);
-		if (step < 26) return;
-		auto B = RowBaseToColBase(BrowBase);
-		if (step < 27) return;
-		auto Xrow = CholeskySolve(A, B);
-		if (step < 28) return;
-		auto X2 = CholeskySolve(RowBaseToColBase(DwVec), RowBaseToColBase(B_lower));
-		if (step < 29) return;
-		X = ColBaseToRowBase(Xrow);
-		if (step < 30) return;
-		SparseMatrix<double> results = D * X;
-		/*
-		Mesh T;
-		T.vertices = results;
-		T.edges = source.edges;
-
-		std::string testfilefolder = "C:/Users/Yueyuan/Documents/GitHub/nonrigid_icp/exp3/test1/";
-		std::string testfilename = testfilefolder + filenameList[counti] + ".obj";
-		std::string testfilename2 = testfilefolder + filenameList[counti] + "cc" + ".obj";
-		counti++;
-		T.M(target.vertices, target.edges, refindices);
-		T.export_I(testfilename, refindices);
-		T.export_as_obj_file(testfilename2);
-		*/
-	}
-	if (step < 31) return;
-	SparseMatrix<double> results = D * X;// Result of NICP
-	if (step < 32) return;
-	deformed_mesh.vertices = results.toDense();
-	deformed_mesh.edges = source.edges;
-	if (step < 33) return;
-	return;
-}
-
 MatrixXi Stitch::NICP::ReverseRef(MatrixXi mat,int len)
 {
-
 	MatrixXi result = -MatrixXi::Ones(len,1);
 	for (int i = 0; i < mat.rows(); i++)
 	{
@@ -774,6 +896,24 @@ MatrixXi Stitch::NICP::ReverseRef(MatrixXi mat,int len)
 			continue;
 		}
 		if (k != -1) 
+		{
+			result(k, 0) = i;
+		}
+	}
+	return result;
+}
+
+MatrixXi Stitch::NICP::ReverseRef(MatrixXi mat, int len, std::set<int> contour_set)
+{
+	MatrixXi result = -MatrixXi::Ones(len, 1);
+	for (int i = 0; i < mat.rows(); i++)
+	{
+		int k = mat(i, 0);
+		if (contour_set.find(i + 1) == contour_set.end())
+		{
+			continue;
+		}
+		if (k != -1)
 		{
 			result(k, 0) = i;
 		}
@@ -1108,7 +1248,6 @@ SparseMatrix<double, Eigen::RowMajor> Stitch::ColBaseToRowBase(SparseMatrix<doub
 	return result;
 }
 
-
 Stitch::mesh_v_and_f Stitch::get__head(::std::vector<Eigen::Vector3f> vertice, ::std::vector<::std::array<int, 3>> triangles)
 {
 	//mesh_v_and_f result;
@@ -1121,9 +1260,17 @@ Stitch::mesh_v_and_f Stitch::get__head(::std::vector<Eigen::Vector3f> vertice, :
 
 Stitch::Mesh Stitch::Fit(Mesh m)
 {
+	Mesh m2 = GetHead(m);
+	auto re = Stitch::Fit(m, m2);
+	return re;
+}
+
+Stitch::Mesh Stitch::GetHead(Mesh m)
+{
 	// Load model
 	std::string model_path = "";
 	std::string folder = model_path;
+	// Load model from "folder". Those models are placed at /data folder and generated by Combining morphable models matlab program
 	Stitch::FileReader Freader1(folder + "head_U.data");
 	auto head_U = Freader1.data;
 	auto head_mean = Freader1.fread(folder + "head_mean.data");
@@ -1136,8 +1283,8 @@ Stitch::Mesh Stitch::Fit(Mesh m)
 	auto headdata = combiner.data;
 	headdata.resize(3, headdata.size() / 3);
 	headdata.transposeInPlace();
-	
-	
+
+
 	std::string targetfile = folder + "Headv1.obj";
 	Stitch::ObjReader targetreader(targetfile);
 	auto x = targetreader.objmesh.edges;
@@ -1145,17 +1292,7 @@ Stitch::Mesh Stitch::Fit(Mesh m)
 	Stitch::Mesh m2;
 	m2.vertices = headdata;
 	m2.edges = x;
-
-	
-	//Stitch::NICP solver;
-	//solver.ImportRelation();
-	//solver.solve(m2, m);// fit m2(head) to m(face)
-	//auto s = solver.deformed_mesh;
-	//s.leave_back(solver.refindices);
-	//auto re = merge(m, s);
-	auto re = Stitch::Fit(m, m2);
-
-	return re;
+	return m2;
 }
 
 Stitch::Mesh Stitch::Fit(Mesh face, Mesh head)
@@ -1164,7 +1301,21 @@ Stitch::Mesh Stitch::Fit(Mesh face, Mesh head)
 	solver.ImportRelation();
 	solver.solve(head, face);
 	auto s = solver.deformed_mesh;
+	s.export_as_obj_file("headfull.obj");
+	extract_contour("headcontour.obj",s,solver.refindices);
 	s.leave_back(solver.refindices);
+	auto re = merge(face, s);
+	return re;
+}
+
+Stitch::Mesh Stitch::Fit(Mesh face, Mesh head, Eigen::Vector3f Direction)
+{
+	Stitch::NICP solver;
+	solver.ImportRelation();
+	solver.solve(head, face);
+	auto s = solver.deformed_mesh;
+	s.leave_back(solver.refindices, Direction);
+	s.export_as_obj_file("new_leave_back.obj");
 	auto re = merge(face, s);
 	return re;
 }
@@ -1182,6 +1333,101 @@ Stitch::KnnSearch::KnnSearch(MatrixXd vertices)
 		plist.push_back(point);
 	}
 	kdtree = KDTree(plist);
+}
+
+Stitch::KnnSearch::KnnSearch(const Mesh &M, const MatrixXi &ref)
+{
+	pointVec plist;
+#if true
+	double MaxX = -10000;
+	double MaxY = -10000;
+	double MaxZ = -10000;
+	double MinX = 10000;
+	double MinY = 10000;
+	double MinZ = 10000;
+	::std::fstream fs("ContourQ.obj", ::std::ios::out);
+#endif
+	for (int i = 0; i < ref.rows(); ++i)
+	{
+		point_t point;
+		int k = ref(i, 0);
+		if (k != -1 && contour_set.find(i + 1) != contour_set.end())
+		{
+#if true
+			fs << "v " << M.vertices(k, 0) << " " << M.vertices(k, 1) << " " << M.vertices(k, 2) << std::endl;
+			MaxX = (MaxX < M.vertices(k, 0)) ? M.vertices(k,0) : MaxX;
+			MaxY = (MaxY < M.vertices(k, 1)) ? M.vertices(k, 1) : MaxY;
+			MaxZ = (MaxZ < M.vertices(k, 2)) ? M.vertices(k, 2) : MaxZ;
+			MinX = (MinX > M.vertices(k, 0)) ? M.vertices(k, 0) : MinX;
+			MinY = (MinY > M.vertices(k, 1)) ? M.vertices(k, 1) : MinY;
+			MinZ = (MinZ > M.vertices(k, 2)) ? M.vertices(k, 2) : MinZ;
+#endif
+			//::std::cout << M.vertices(k, 0) << "  " << M.vertices(k, 1) << " " << M.vertices(k, 2) << std::endl;
+			for (int j = 0; j < M.vertices.cols(); ++j)
+			{
+				point.push_back(M.vertices(k, j));
+			}
+			plist.push_back(point);
+		}	
+	}
+	fs.close();
+	::std::cout << MaxX << "   " << MinX << ::std::endl;
+	::std::cout << MaxY << "   " << MinY << ::std::endl;
+	::std::cout << MaxZ << "   " << MinZ << ::std::endl;
+
+	::std::cout << "********************" << std::endl;
+
+
+	kdtree = KDTree(plist);
+	return;
+}
+Stitch::KnnSearch::KnnSearch(const Mesh& M, const MatrixXi& ref,::std::vector<int> &index)
+{
+	pointVec plist;
+#if true
+	double MaxX = -10000;
+	double MaxY = -10000;
+	double MaxZ = -10000;
+	double MinX = 10000;
+	double MinY = 10000;
+	double MinZ = 10000;
+	::std::fstream fs("ContourQ.obj", ::std::ios::out);
+#endif
+	index.clear();
+	for (int i = 0; i < ref.rows(); ++i)
+	{
+		point_t point;
+		int k = ref(i, 0);
+		if (k != -1 && contour_set.find(i + 1) != contour_set.end())
+		{
+#if true
+			fs << "v " << M.vertices(k, 0) << " " << M.vertices(k, 1) << " " << M.vertices(k, 2) << std::endl;
+			MaxX = (MaxX < M.vertices(k, 0)) ? M.vertices(k, 0) : MaxX;
+			MaxY = (MaxY < M.vertices(k, 1)) ? M.vertices(k, 1) : MaxY;
+			MaxZ = (MaxZ < M.vertices(k, 2)) ? M.vertices(k, 2) : MaxZ;
+			MinX = (MinX > M.vertices(k, 0)) ? M.vertices(k, 0) : MinX;
+			MinY = (MinY > M.vertices(k, 1)) ? M.vertices(k, 1) : MinY;
+			MinZ = (MinZ > M.vertices(k, 2)) ? M.vertices(k, 2) : MinZ;
+#endif
+			//::std::cout << M.vertices(k, 0) << "  " << M.vertices(k, 1) << " " << M.vertices(k, 2) << std::endl;
+			for (int j = 0; j < M.vertices.cols(); ++j)
+			{
+				point.push_back(M.vertices(k, j));
+			}
+			plist.push_back(point);
+			index.push_back(k);
+		}
+	}
+	fs.close();
+	::std::cout << MaxX << "   " << MinX << ::std::endl;
+	::std::cout << MaxY << "   " << MinY << ::std::endl;
+	::std::cout << MaxZ << "   " << MinZ << ::std::endl;
+
+	::std::cout << "********************" << std::endl;
+
+
+	kdtree = KDTree(plist);
+	return;
 }
 
 MatrixXi Stitch::KnnSearch::Kneighbors(MatrixXd vertices,int K,double threhold)
@@ -1310,9 +1556,20 @@ void __C__mesh__test2()
 	Stitch::Mesh m = Oreader.objmesh;
 	std::cout << m.vertices.rows() << " " << m.vertices.cols();
 	auto s = Fit(m);
-	s.export_as_obj_file("C:/Users/Yueyuan/Documents/Exp/K_4.obj");
-	
+	s.export_as_obj_file("C:/Users/Yueyuan/Documents/Exp/K_4.obj");	
 	return;
+}
+
+void __C__mesh__test3(double x, double y, double z,double t1, double t2)
+{
+	Stitch::ObjReader Oreader("C:/Users/Yueyuan/Documents/Exp/Input_face.obj");
+	global_m1 = t1;
+	global_m2 = t2;
+	Stitch::Mesh m = Oreader.objmesh;
+	Eigen::Vector3f direction(x, y, z);
+	auto m2 = Stitch::GetHead(m);
+	auto S = Fit(m, m2,direction);
+	S.export_as_obj_file("C:/Users/Yueyuan/Documents/Exp/K_5.obj");
 }
 
 void neck_test()
@@ -1359,4 +1616,23 @@ void neck_test()
 	s.export_boudary_as_obj_file("NectBoundary.obj", solver.refindices);
 	m2.export_boudary_as_obj_file("HeadNeck.obj", solver.refindices);
 
+}
+
+namespace Stitch{
+	void extract_contour(::std::string filename,Stitch::Mesh M,MatrixXi relation,::std::set<int> Contour)
+	{
+		::std::fstream fout(filename, ::std::ios::out);
+		for (int i = 0; i < relation.rows(); i++)
+		{
+			int k = relation(i, 0);
+			if (Contour.find(i + 1) == Contour.end())
+			{
+				continue;
+			}
+			if (k != -1 && k < M.vertices.rows())
+			{
+				fout << "v " << M.vertices(k, 0) << " " << M.vertices(k, 1) << " " << M.vertices(k, 2) << ::std::endl;
+			}
+		}
+	}
 }
